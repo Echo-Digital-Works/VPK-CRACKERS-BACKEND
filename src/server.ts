@@ -1,16 +1,14 @@
+import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
 import enquiryRoutes from './routes/enquiryRoutes';
 import adminRoutes from './routes/adminRoutes';
 import productRoutes from './routes/productRoutes';
 import offerRoutes from './routes/offerRoutes';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
