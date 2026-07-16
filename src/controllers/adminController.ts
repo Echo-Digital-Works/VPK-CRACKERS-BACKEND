@@ -3,10 +3,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin';
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
-
 const generateToken = (id: string) => {
-  return jwt.sign({ id }, JWT_SECRET, {
+  return jwt.sign({ id }, process.env.JWT_SECRET as string, {
     expiresIn: '30d',
   });
 };
