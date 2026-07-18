@@ -39,24 +39,27 @@ const connectDB = async () => {
     return;
   }
   if (!process.env.MONGO_URI) {
-    console.error('FATAL ERROR: MONGO_URI is not defined.');
-    return;
+    throw new Error('MONGO_URI is not defined in environment variables');
   }
-  try {
-    const db = await mongoose.connect(process.env.MONGO_URI as string, {
-      maxPoolSize: 10, // Prevent Free Tier connection limit exhaustion (max 500)
-      serverSelectionTimeoutMS: 5000,
-    });
-    isConnected = db.connections[0].readyState === 1;
-    console.log('MongoDB Connected successfully');
-  } catch (err) {
-    console.error('MongoDB connection error:', err);
-  }
+  
+  const db = await mongoose.connect(process.env.MONGO_URI as string, {
+    maxPoolSize: 10, // Prevent Free Tier connection limit exhaustion
+    serverSelectionTimeoutMS: 5000,
+    family: 4, // Force IPv4 to prevent Node 18+ DNS resolution issues on Vercel
+  });
+  
+  isConnected = db.connections[0].readyState === 1;
+  console.log('MongoDB Connected successfully');
 };
 
 app.use(async (req, res, next) => {
-  await connectDB();
-  next();
+  try {
+    await connectDB();
+    next();
+  } catch (error: any) {
+    console.error('Database connection failed:', error.message);
+    res.status(500).json({ message: `Database connection error: ${error.message}` });
+  }
 });
 
 // Routes
