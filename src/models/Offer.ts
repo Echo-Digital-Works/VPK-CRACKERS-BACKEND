@@ -16,6 +16,7 @@ export interface IOffer extends Document {
     total: number;
   }>;
   isActive: boolean;
+  sortOrder: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,6 +38,7 @@ const offerSchema = new Schema<IOffer>(
       total: { type: Number, required: true }
     }],
     isActive: { type: Boolean, default: true },
+    sortOrder: { type: Number, default: 0 },
   },
   {
     timestamps: true,
