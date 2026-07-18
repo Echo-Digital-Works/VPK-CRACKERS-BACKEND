@@ -6,7 +6,7 @@ import Product from '../models/Product';
 // @access  Public
 export const getProducts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const products = await Product.find({});
+    const products = await Product.find({}).sort({ sortOrder: 1 });
     res.json(products);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -18,7 +18,7 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
 // @access  Private/Admin
 export const createProduct = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, category, price, discount, img, desc } = req.body;
+    const { name, category, price, discount, img, desc, sortOrder } = req.body;
 
     const product = new Product({
       name,
@@ -26,7 +26,8 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
       price,
       discount: discount || '',
       img,
-      desc
+      desc,
+      sortOrder: sortOrder || 0
     });
 
     const createdProduct = await product.save();
@@ -41,7 +42,7 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
 // @access  Private/Admin
 export const updateProduct = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, category, price, discount, img, desc } = req.body;
+    const { name, category, price, discount, img, desc, sortOrder } = req.body;
 
     const product = await Product.findById(req.params.id);
 
@@ -52,6 +53,7 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
       product.discount = discount !== undefined ? discount : product.discount;
       product.img = img || product.img;
       product.desc = desc || product.desc;
+      product.sortOrder = sortOrder !== undefined ? sortOrder : product.sortOrder;
 
       const updatedProduct = await product.save();
       res.json(updatedProduct);
