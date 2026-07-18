@@ -32,12 +32,32 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Database Connection
-mongoose.connect(process.env.MONGO_URI as string, {
-  maxPoolSize: 10, // Prevent Free Tier connection limit exhaustion (max 500)
-  serverSelectionTimeoutMS: 5000,
-})
-  .then(() => console.log('MongoDB Connected successfully'))
-  .catch(err => console.error('MongoDB connection error:', err));
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected) {
+    return;
+  }
+  if (!process.env.MONGO_URI) {
+    console.error('FATAL ERROR: MONGO_URI is not defined.');
+    return;
+  }
+  try {
+    const db = await mongoose.connect(process.env.MONGO_URI as string, {
+      maxPoolSize: 10, // Prevent Free Tier connection limit exhaustion (max 500)
+      serverSelectionTimeoutMS: 5000,
+    });
+    isConnected = db.connections[0].readyState === 1;
+    console.log('MongoDB Connected successfully');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+  }
+};
+
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
 // Routes
 app.use('/api/enquiry', enquiryRoutes);
@@ -50,7 +70,11 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Start Server (only if not running in Vercel/serverless environment)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
+export default app;
