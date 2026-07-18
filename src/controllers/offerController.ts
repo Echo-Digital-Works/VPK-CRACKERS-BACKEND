@@ -26,7 +26,7 @@ export const getOffers = async (req: Request, res: Response) => {
 // Create a new offer
 export const createOffer = async (req: Request, res: Response) => {
   try {
-    const { title, discount, description, image, gradient, price, discountPrice, products, isActive } = req.body;
+    const { title, discount, description, image, gradient, price, discountPrice, products, isActive, sortOrder } = req.body;
     
     // Auto-choose a gradient if not provided
     const selectedGradient = gradient || GRADIENTS[Math.floor(Math.random() * GRADIENTS.length)];
@@ -40,7 +40,8 @@ export const createOffer = async (req: Request, res: Response) => {
       discountPrice,
       products,
       gradient: selectedGradient,
-      isActive: isActive !== undefined ? isActive : true
+      isActive: isActive !== undefined ? isActive : true,
+      sortOrder: sortOrder || 0
     });
 
     const savedOffer = await newOffer.save();
