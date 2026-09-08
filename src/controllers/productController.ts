@@ -10,7 +10,7 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
     const limit = parseInt(req.query.limit as string);
 
     let query = Product.find({});
-    query = query.sort({ category: 1, sortOrder: 1 });
+    query = query.sort({ category: 1, sortOrder: 1 }).allowDiskUse(true);
 
     if (page && limit) {
       const skip = (page - 1) * limit;
