@@ -10,4 +10,6 @@ const productSchema = new mongoose.Schema({
   sortOrder: { type: Number, default: 0 }
 }, { timestamps: true });
 
+productSchema.index({ category: 1, sortOrder: 1 });
+
 export default mongoose.model('Product', productSchema);
