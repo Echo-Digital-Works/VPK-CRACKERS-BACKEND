@@ -6,7 +6,18 @@ import Product from '../models/Product';
 // @access  Public
 export const getProducts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const products = await Product.find({}).sort({ sortOrder: 1 });
+    const page = parseInt(req.query.page as string);
+    const limit = parseInt(req.query.limit as string);
+
+    let query = Product.find({});
+    query = query.sort({ category: 1, sortOrder: 1 });
+
+    if (page && limit) {
+      const skip = (page - 1) * limit;
+      query = query.skip(skip).limit(limit);
+    }
+
+    const products = await query;
     res.json(products);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
